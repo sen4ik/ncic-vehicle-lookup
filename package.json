@@ -1,0 +1,46 @@
+{
+  "name": "ncic-vehicle-lookup",
+  "version": "1.0.0",
+  "description": "Synchronous NCIC vehicle code lookups (make, model, color, style) from NIEM 6.0",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src/data"
+  ],
+  "scripts": {
+    "build:data": "tsx scripts/build-data.ts",
+    "build": "tsup",
+    "test": "vitest run",
+    "prepublishOnly": "yarn build"
+  },
+  "keywords": [
+    "ncic",
+    "vehicle",
+    "make",
+    "dmv",
+    "niem",
+    "vin"
+  ],
+  "license": "MIT",
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "dts": true,
+    "clean": true
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
+  }
+}
