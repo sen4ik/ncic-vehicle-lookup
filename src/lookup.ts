@@ -11,7 +11,7 @@ export function createLookup(pair: NcicMapPair): NcicLookup {
     },
 
     all(): Record<string, string> {
-      return pair.forward;
+      return { ...pair.forward };
     },
   };
 }
