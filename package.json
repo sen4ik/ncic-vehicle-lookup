@@ -30,6 +30,15 @@
     "niem",
     "vin"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sen4ik/ncic-vehicle-lookup.git"
+  },
+  "homepage": "https://github.com/sen4ik/ncic-vehicle-lookup#readme",
+  "author": "sen4ik",
+  "engines": {
+    "node": ">=16"
+  },
   "license": "MIT",
   "tsup": {
     "entry": ["src/index.ts"],
