@@ -10,6 +10,10 @@ export interface NcicLookup {
    * Case-insensitive. Matches against normalized names (corporate
    * suffixes and parentheticals stripped from NIEM source).
    * getCode('Nissan') === getCode('NISSAN') → 'NISS'
+   *
+   * If the input is already a valid NCIC code, it is returned as-is
+   * (uppercased): getCode('gmc') → 'GMC'. This makes the call
+   * round-trip safe when callers pass either a name or a code.
    */
   getCode(name: string): string | undefined;
 

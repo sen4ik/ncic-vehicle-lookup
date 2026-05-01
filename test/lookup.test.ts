@@ -40,6 +40,14 @@ describe('vehicleMake', () => {
     expect(vehicleMake.getCode('NotARealMake')).toBeUndefined();
   });
 
+  it('getCode returns the code as-is when the input is already a valid NCIC code', () => {
+    expect(vehicleMake.getCode('GMC')).toBe('GMC');
+    expect(vehicleMake.getCode('gmc')).toBe('GMC');
+    expect(vehicleMake.getCode('GM')).toBe('GM');
+    expect(vehicleMake.getCode('NISS')).toBe('NISS');
+    expect(vehicleMake.getCode('TOYT')).toBe('TOYT');
+  });
+
   it('all() returns map with over 1000 entries', () => {
     const all = vehicleMake.all();
     expect(Object.keys(all).length).toBeGreaterThan(1000);
@@ -60,6 +68,11 @@ describe('vehicleColor', () => {
   it('getCode returns code for known color', () => {
     expect(vehicleColor.getCode('BLACK')).toBe('BLK');
     expect(vehicleColor.getCode('WHITE')).toBe('WHI');
+  });
+
+  it('getCode returns the code as-is when the input is already a valid NCIC code', () => {
+    expect(vehicleColor.getCode('BLK')).toBe('BLK');
+    expect(vehicleColor.getCode('blk')).toBe('BLK');
   });
 
   it('getCode is case-insensitive', () => {

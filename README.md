@@ -31,6 +31,11 @@ vehicleMake.getCode('Nissan')      // → 'NISS'
 vehicleMake.getCode('toyota')      // → 'TOYT'  (case-insensitive)
 vehicleMake.getCode('Unknown')     // → undefined
 
+// If the input is already a valid NCIC code, it's returned as-is.
+// This makes the call round-trip safe for callers that may pass either form.
+vehicleMake.getCode('GMC')         // → 'GMC'
+vehicleMake.getCode('gmc')         // → 'GMC'
+
 // Code → name  (e.g. for display purposes)
 vehicleMake.getName('NISS')        // → 'NISSAN'
 vehicleMake.getName('niss')        // → 'NISSAN'  (case-insensitive)
@@ -56,7 +61,9 @@ interface NcicLookup {
 
   /** Returns the NCIC code for a name, or undefined if not found. Case-insensitive.
    *  Matches against normalized names — corporate suffixes and parentheticals stripped.
-   *  e.g. getCode('Honda') resolves to 'HOND' even though NIEM stores 'HONDA MOTOR CO., LTD' */
+   *  e.g. getCode('Honda') resolves to 'HOND' even though NIEM stores 'HONDA MOTOR CO., LTD'.
+   *  If the input is already a valid NCIC code it is returned as-is (uppercased),
+   *  so getCode('gmc') → 'GMC'. */
   getCode(name: string): string | undefined;
 
   /** Returns the full forward map: code → name */

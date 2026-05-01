@@ -1,6 +1,6 @@
 {
   "name": "ncic-vehicle-lookup",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Synchronous NCIC vehicle code lookups (make, model, color, style) from NIEM 6.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
