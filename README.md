@@ -36,6 +36,14 @@ vehicleMake.getCode('Unknown')     // → undefined
 vehicleMake.getCode('GMC')         // → 'GMC'
 vehicleMake.getCode('gmc')         // → 'GMC'
 
+// Common-name aliases handle makes whose NIEM raw name is too messy
+// for the build-time normalizer (combo strings, "PART OF FCA US LLC",
+// etc.) and alternate spellings. See "Make aliases" below.
+vehicleMake.getCode('McLaren')          // → 'MCLA'
+vehicleMake.getCode('Volkswagen')       // → 'VOLK'
+vehicleMake.getCode('Mercedes-Benz')    // → 'MERZ'
+vehicleMake.getName('MCLA')             // → 'MCLAREN'  (clean name, not the raw NIEM string)
+
 // Code → name  (e.g. for display purposes)
 vehicleMake.getName('NISS')        // → 'NISSAN'
 vehicleMake.getName('niss')        // → 'NISSAN'  (case-insensitive)
@@ -79,6 +87,42 @@ interface NcicLookup {
 | `vehicleModel` | VMO | ~1,630 | Vehicle model |
 | `vehicleColor` | VCO | 32 | Vehicle color |
 | `vehicleStyle` | VST | 146 | Vehicle style (2D, 4D, PK, MC, etc.) |
+
+## Make aliases
+
+Many NIEM raw names for vehicle makes can't be matched by typing the obvious common name. Examples:
+
+- `"VOLK"` is stored as `"VOLKSWAGEN PART OF FCA US LLC"` — typing `"Volkswagen"` doesn't match.
+- `"MCLA"` is stored as `"MCLAREN AUTOMOTIVE, LTD (AKA-MCLAREN) UNITED KINGDOM MCLAREN RACING, MCLAREN GROUP"`.
+- `"SCIO"` is stored as `"SCI0N..."` (NIEM data uses **digit zeros** instead of letter O's — likely a data entry error).
+
+To handle these, `vehicleMake` ships a hand-curated alias map at [`src/data/vehicle-make-aliases.ts`](src/data/vehicle-make-aliases.ts). When a key in the alias map is passed to `getCode`, it returns the mapped NCIC code; the matching `displayName` (when set) also overrides what `getName(code)` and `all()[code]` return for that code.
+
+Lookup order for `getCode`:
+
+1. Input is already a valid NCIC code → return it.
+2. Input matches an alias key (uppercased) → return the alias's code.
+3. Fall back to the auto-generated normalized-name reverse map.
+
+### Currently aliased makes
+
+`Alfa Romeo`, `Chrysler`, `Dodge`, `Genesis`, `Karma`, `Koenigsegg`, `Lucid`, `Maserati`, `McLaren`, `Mercedes` / `Mercedes-Benz`, `Mitsubishi`, `Pagani`, `Plymouth`, `Polestar`, `Rivian`, `Rolls Royce` / `Rolls-Royce`, `Saturn`, `Scion`, `Smart`, `Suzuki`, `Tesla`, `Vinfast`, `Volkswagen`.
+
+### Adding more aliases
+
+Edit `src/data/vehicle-make-aliases.ts` and add an entry like:
+
+```ts
+'BENTLEY': { code: 'BENT', displayName: 'BENTLEY' },
+```
+
+Keys must be uppercase. The test suite auto-covers every entry in the alias map, so a typo in `code` will fail tests immediately.
+
+### Intentional non-aliases
+
+Some common brands are deliberately **not** aliased because they map to multiple legitimate codes that a clerk should pick explicitly:
+
+- `Fisker` → could be `FISR` (Fisker Inc., 2016+) or `FSKR` (Fisker Automotive, 2008–2012). The year on the title disambiguates. Use the codes directly.
 
 ## Data Source
 

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { vehicleMake, vehicleModel, vehicleColor, vehicleStyle } from '../src/index.js';
+import { VEHICLE_MAKE_ALIASES } from '../src/data/vehicle-make-aliases.js';
 
 describe('vehicleMake', () => {
   it('getName returns full name for known uppercase code', () => {
@@ -51,6 +52,65 @@ describe('vehicleMake', () => {
   it('all() returns map with over 1000 entries', () => {
     const all = vehicleMake.all();
     expect(Object.keys(all).length).toBeGreaterThan(1000);
+  });
+});
+
+describe('vehicleMake aliases', () => {
+  // Source-of-truth: every alias entry is exercised in both directions.
+  // Adding a new alias to VEHICLE_MAKE_ALIASES will cause this test to
+  // automatically cover it; an inconsistent or non-existent code will fail.
+  for (const [name, alias] of Object.entries(VEHICLE_MAKE_ALIASES)) {
+    it(`alias "${name}" → ${alias.code}`, () => {
+      expect(vehicleMake.getCode(name)).toBe(alias.code);
+      expect(vehicleMake.getCode(name.toLowerCase())).toBe(alias.code);
+      // The aliased code must exist in the underlying NIEM forward map,
+      // otherwise the alias is pointing at a nonexistent code (typo).
+      expect(vehicleMake.getName(alias.code)).toBeDefined();
+    });
+  }
+
+  it('display-name override applies to getName for aliased codes', () => {
+    expect(vehicleMake.getName('MCLA')).toBe('MCLAREN');
+    expect(vehicleMake.getName('mcla')).toBe('MCLAREN');
+    expect(vehicleMake.getName('MERZ')).toBe('MERCEDES-BENZ');
+    expect(vehicleMake.getName('SCIO')).toBe('SCION');
+    expect(vehicleMake.getName('VOLK')).toBe('VOLKSWAGEN');
+  });
+
+  it('display-name override applies to all() for aliased codes', () => {
+    const all = vehicleMake.all();
+    expect(all['MCLA']).toBe('MCLAREN');
+    expect(all['MERZ']).toBe('MERCEDES-BENZ');
+    expect(all['SCIO']).toBe('SCION');
+  });
+
+  it('Mercedes / Mercedes-Benz / Mercedes Benz all resolve to MERZ', () => {
+    expect(vehicleMake.getCode('Mercedes')).toBe('MERZ');
+    expect(vehicleMake.getCode('Mercedes-Benz')).toBe('MERZ');
+    expect(vehicleMake.getCode('mercedes-benz')).toBe('MERZ');
+    // 'MERCEDES BENZ' (with space) was already in NIEM reverse map
+    expect(vehicleMake.getCode('Mercedes Benz')).toBe('MERZ');
+  });
+
+  it('Rolls Royce / Rolls-Royce both resolve to ROL', () => {
+    expect(vehicleMake.getCode('Rolls Royce')).toBe('ROL');
+    expect(vehicleMake.getCode('Rolls-Royce')).toBe('ROL');
+  });
+
+  it('Fisker is intentionally NOT aliased (ambiguous)', () => {
+    // FISR (modern Fisker Inc) and FSKR (original Fisker Automotive,
+    // suspended 2012) are distinct legal entities. Aliasing either one
+    // would silently get the wrong code for half of real-world Fisker
+    // titles. Direct code lookup still works.
+    expect(vehicleMake.getCode('Fisker')).toBeUndefined();
+    expect(vehicleMake.getCode('FISR')).toBe('FISR');
+    expect(vehicleMake.getCode('FSKR')).toBe('FSKR');
+  });
+
+  it('aliases do not break unrelated lookups', () => {
+    expect(vehicleMake.getCode('Honda')).toBe('HOND');
+    expect(vehicleMake.getCode('NISSAN')).toBe('NISS');
+    expect(vehicleMake.getCode('NotARealMake')).toBeUndefined();
   });
 });
 

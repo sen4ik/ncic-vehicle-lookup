@@ -37,3 +37,30 @@ export interface NcicMapPair {
   /** Normalized name → NCIC code */
   reverse: Record<string, string>;
 }
+
+/**
+ * A hand-curated alias entry. Routes a user-friendly name (the map key)
+ * to a specific NCIC code and, optionally, overrides the messy NIEM
+ * display name returned by getName for that code.
+ */
+export interface NcicAlias {
+  /** NCIC code this alias resolves to. Will be uppercased on use. */
+  code: string;
+  /**
+   * Optional clean display name. When set, getName(code) and all()[code]
+   * return this string instead of the raw NIEM forward-map value.
+   */
+  displayName?: string;
+}
+
+/** Optional extras passed to createLookup. */
+export interface NcicLookupOptions {
+  /**
+   * Map of UPPERCASE name → alias. Consulted by getCode after the
+   * code-passthrough check but before the auto-generated reverse map.
+   * Keys MUST be uppercase; the input to getCode is uppercased before
+   * the lookup. Aliases that supply a displayName also affect getName
+   * and all() for the target code.
+   */
+  aliases?: Record<string, NcicAlias>;
+}
